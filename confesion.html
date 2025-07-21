@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>¿Aceptarías salir a cenar conmigo?</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #fff;
+    color: #cf2d43;
+    text-align: center;
+    margin: 40px 10px;
+  }
+  h1 {
+    font-size: 2.2em;
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-size: 1.2em;
+    color: #444;
+    margin-bottom: 40px;
+  }
+  #botones {
+    position: relative;
+    height: 80px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  button {
+    position: absolute;
+    font-size: 1.3em;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 120px;
+    height: 55px;
+    transition: left 0.3s, top 0.3s;
+  }
+  #btnSi {
+    background-color: #28a745;
+    left: calc(30%);
+    top: 10px;
+  }
+  #btnNo {
+    background-color: #dc3545;
+    left: calc(55%);
+    top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h1>¿Aceptarías salir a cenar conmigo?</h1>
+<h2>Elige tu respuesta libremente</h2>
+
+<div id="botones">
+  <button id="btnSi">Sí</button>
+  <button id="btnNo">No</button>
+</div>
+
+<script>
+  const btnSi = document.getElementById('btnSi');
+  const btnNo = document.getElementById('btnNo');
+  const botones = document.getElementById('botones');
+  const tituloHeight = document.querySelector('h1').offsetHeight + document.querySelector('h2').offsetHeight + 40; // espacio seguro
+  let intercambios = 0;
+  const intercambiosLimite = 3;
+  let invertido = false;
+
+  btnSi.addEventListener('click', () => {
+    alert('¡Sabía que aceptarías!');
+  });
+
+  btnNo.addEventListener('mouseenter', () => {
+    if (intercambios < intercambiosLimite) {
+      intercambiarBotones();
+      intercambios++;
+      if(intercambios === intercambiosLimite) {
+        activarModoEscurridizo();
+      }
+    }
+  });
+
+  function intercambiarBotones(){
+    if(!invertido){
+      btnNo.style.left = '30%';
+      btnSi.style.left = '55%';
+    } else {
+      btnSi.style.left = '30%';
+      btnNo.style.left = '55%';
+    }
+    invertido = !invertido;
+  }
+
+  function activarModoEscurridizo(){
+    btnNo.removeEventListener('mouseenter', intercambiarBotones);
+    btnNo.addEventListener('mouseenter', moverBotonNo);
+    btnNo.addEventListener('mousemove', moverBotonNo);
+    btnNo.addEventListener('click', e => e.preventDefault()); // prevenir click
+  }
+
+  function moverBotonNo(){
+    const maxX = botones.clientWidth - btnNo.offsetWidth - 10;
+    const maxY = botones.clientHeight - btnNo.offsetHeight - 10;
+    const minX = 0;
+    const minY = 0;
+
+    let x,y;
+    let rectSi = btnSi.getBoundingClientRect();
+
+    // Mover el boton "No" a posición aleatoria no superpuesta con "Sí"
+    let intentos = 0;
+    do {
+      x = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
+      y = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+      let rectNo = {
+        left: x + botones.getBoundingClientRect().left,
+        right: x + botones.getBoundingClientRect().left + btnNo.offsetWidth,
+        top: y + botones.getBoundingClientRect().top,
+        bottom: y + botones.getBoundingClientRect().top + btnNo.offsetHeight
+      };
+
+      const superpone = !(rectNo.right < rectSi.left ||
+                          rectNo.left > rectSi.right ||
+                          rectNo.bottom < rectSi.top ||
+                          rectNo.top > rectSi.bottom);
+
+      if(!superpone) break;
+      intentos++;
+    } while(intentos < 50);
+
+    btnNo.style.left = x + "px";
+    btnNo.style.top = y + "px";
+  }
+</script>
+
+</body>
+</html>
